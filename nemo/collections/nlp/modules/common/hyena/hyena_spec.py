@@ -32,7 +32,7 @@ from nemo.collections.nlp.modules.common.hyena.hyena_filter import (
 try:
     from megatron.core.extensions.transformer_engine import TELayerNormColumnParallelLinear, TERowParallelLinear
 
-    HAVE_TE = True
+    HAVE_TE = False
 
 except ImportError:
     HAVE_TE = False
