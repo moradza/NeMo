@@ -30,8 +30,19 @@ from nemo.collections.nlp.modules.common.hyena.hyena_filter import (
     Sin,
 )
 
+try:
+    import transformer_engine.pytorch  # pylint: disable=unused-import
+
+    HAVE_TE = True
+
+except ImportError:
+    HAVE_TE = False
+
 
 def get_hyena_layer_with_transformer_engine_spec(hyena_cfg):
+    if not HAVE_TE:
+        raise ImportError("TransformerEngine not installed.")
+
     return ModuleSpec(
         module=HyenaOperator,
         params=hyena_cfg,
@@ -53,6 +64,9 @@ def get_hyena_layer_with_transformer_engine_spec(hyena_cfg):
 
 
 def get_gpt_layer_with_te_and_hyena_spec(hyena_cfg):
+    if not HAVE_TE:
+        raise ImportError("TransformerEngine not installed.")
+
     spec = get_gpt_layer_with_transformer_engine_spec()
     spec.submodules.self_attention = get_hyena_layer_with_transformer_engine_spec(hyena_cfg)
     return spec
