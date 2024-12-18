@@ -82,6 +82,42 @@ def get_bert_layer_with_transformer_engine_spec_postln():
     )
 
 
+# Use this spec for an implementation using only modules in megatron core
+def get_bert_layer_local_spec_postln():
+    """Use this spec to use Megatron-Core spec.
+
+    Returns:
+        ModuleSpec: Module specification with Megatron-Core modules
+    """
+    return ModuleSpec(
+        module=TransformerLayerWithPostLNSupport,
+        submodules=TransformerLayerSubmodulesWithPostLNSupport(
+            self_attention=ModuleSpec(
+                module=SelfAttention,
+                params={"attn_mask_type": AttnMaskType.padding},
+                submodules=SelfAttentionSubmodules(
+                    linear_qkv=ColumnParallelLinear,
+                    core_attention=DotProductAttention,
+                    linear_proj=RowParallelLinear,
+                    q_layernorm=IdentityOp,
+                    k_layernorm=IdentityOp,
+                ),
+            ),
+            self_attn_bda=get_bias_dropout_add,
+            post_att_layernorm=FusedLayerNorm,
+            mlp=ModuleSpec(
+                module=MLP,
+                submodules=MLPSubmodules(
+                    linear_fc1=ColumnParallelLinear,
+                    linear_fc2=RowParallelLinear,
+                ),
+            ),
+            mlp_bda=get_bias_dropout_add,
+            post_mlp_layernorm=FusedLayerNorm,
+        ),
+    )
+
+
 def __getattr__(name):
     if name == 'bert_layer_with_transformer_engine_spec_postln':
         warnings.warn(
@@ -92,32 +128,11 @@ def __getattr__(name):
 
         return get_bert_layer_with_transformer_engine_spec_postln()
 
+    if name == 'bert_layer_local_spec_postln':
+        warnings.warn(
+            """Attribute bert_specs.bert_layer_local_spec_postln is on a
+            deprecation track and will be removed in future releases. Please migrate to
+            bert_spec.get_bert_layer_local_spec_postln()."""
+        )
 
-# Use this spec for an implementation using only modules in megatron core
-bert_layer_local_spec_postln = ModuleSpec(
-    module=TransformerLayerWithPostLNSupport,
-    submodules=TransformerLayerSubmodulesWithPostLNSupport(
-        self_attention=ModuleSpec(
-            module=SelfAttention,
-            params={"attn_mask_type": AttnMaskType.padding},
-            submodules=SelfAttentionSubmodules(
-                linear_qkv=ColumnParallelLinear,
-                core_attention=DotProductAttention,
-                linear_proj=RowParallelLinear,
-                q_layernorm=IdentityOp,
-                k_layernorm=IdentityOp,
-            ),
-        ),
-        self_attn_bda=get_bias_dropout_add,
-        post_att_layernorm=FusedLayerNorm,
-        mlp=ModuleSpec(
-            module=MLP,
-            submodules=MLPSubmodules(
-                linear_fc1=ColumnParallelLinear,
-                linear_fc2=RowParallelLinear,
-            ),
-        ),
-        mlp_bda=get_bias_dropout_add,
-        post_mlp_layernorm=FusedLayerNorm,
-    ),
-)
+        return get_bert_layer_local_spec_postln()
