@@ -13,14 +13,8 @@
 # limitations under the License.
 
 import torch.nn as nn
-from megatron.core.models.gpt.gpt_layer_specs import get_gpt_layer_with_transformer_engine_spec
 from megatron.core.transformer.spec_utils import ModuleSpec
 
-from nemo.collections.nlp.modules.common.hyena.hyena import (
-    CausalDepthWiseConv1d,
-    HyenaOperator,
-    HyenaOperatorSubmodules,
-)
 from nemo.collections.nlp.modules.common.hyena.hyena_filter import (
     ExponentialModulation,
     HyenaFilter,
@@ -30,12 +24,22 @@ from nemo.collections.nlp.modules.common.hyena.hyena_filter import (
 )
 
 try:
-    from megatron.core.extensions.transformer_engine import TELayerNormColumnParallelLinear, TERowParallelLinear
+    import transformer_engine  # pytlint
 
-    HAVE_TE = False
+    HAVE_TE = True
 
 except ImportError:
     HAVE_TE = False
+
+if HAVE_TE:
+    from megatron.core.extensions.transformer_engine import TELayerNormColumnParallelLinear, TERowParallelLinear
+    from megatron.core.models.gpt.gpt_layer_specs import get_gpt_layer_with_transformer_engine_spec
+
+    from nemo.collections.nlp.modules.common.hyena.hyena import (
+        CausalDepthWiseConv1d,
+        HyenaOperator,
+        HyenaOperatorSubmodules,
+    )
 
 
 def get_hyena_layer_with_transformer_engine_spec(hyena_cfg):
