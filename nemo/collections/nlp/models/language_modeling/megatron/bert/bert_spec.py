@@ -53,8 +53,7 @@ def get_bert_layer_with_transformer_engine_spec_postln():
         ModuleSpec: Module specification with TE modules
     """
 
-    if not HAVE_MEGATRON_CORE:
-        raise ImportError("Megatron-Core is not installed. Please use `get_bert_layer_local_spec_postln()` instead.")
+    assert HAVE_MEGATRON_CORE, "Please ensure Megatron Core and Transformer Engine are installed."
 
     return ModuleSpec(
         module=TransformerLayerWithPostLNSupport,
