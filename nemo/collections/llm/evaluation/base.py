@@ -165,6 +165,7 @@ class NeMoFWLMEval(LM):
 
         return results
 
+
 def wait_for_server_ready(url, model_name, max_retries=600, retry_interval=2):
     """
     Wait for the Triton server and model to be ready, with retry logic.
@@ -180,13 +181,14 @@ def wait_for_server_ready(url, model_name, max_retries=600, retry_interval=2):
     """
 
     import time
+
     import requests
     from pytriton.client import ModelClient
-    from pytriton.client.exceptions import PyTritonClientTimeoutError, PyTritonClientModelUnavailableError
+    from pytriton.client.exceptions import PyTritonClientModelUnavailableError, PyTritonClientTimeoutError
 
     # If gRPC URL, extract HTTP URL from gRPC URL for health checks
     if url.startswith("grpc://"):
-        #TODO use triton port and grpc port instaed of harcoding
+        # TODO use triton port and grpc port instaed of harcoding
         url = url.replace("grpc://", "http://").replace(":8001", ":8000")
     health_url = f"{url}/v2/health/ready"
 
