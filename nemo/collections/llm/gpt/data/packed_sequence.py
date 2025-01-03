@@ -91,7 +91,7 @@ def prepare_packed_sequence_data(
             with open(output_metadata_path, "r") as f:
                 packing_metadata_file = json.load(f)
                 assert isinstance(packing_metadata_file, list), "invalid packing_metadata_file!"
-        except (FileNotFoundError):
+        except FileNotFoundError:
             packing_metadata_file = []
 
         packing_metadata_file.append(packing_metadata)
