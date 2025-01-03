@@ -41,7 +41,11 @@ except Exception as e:
 in_framework_supported = True
 try:
     from nemo.deploy.nlp import NemoQueryLLMPyTorch
-    from nemo.deploy.nlp.megatronllm_deployable import MegatronLLMDeploy, MegatronLLMDeployable, MegatronLLMDeployableNemo2
+    from nemo.deploy.nlp.megatronllm_deployable import (
+        MegatronLLMDeploy,
+        MegatronLLMDeployable,
+        MegatronLLMDeployableNemo2,
+    )
 except Exception as e:
     LOGGER.warning(
         "Cannot import MegatronLLMDeployable or NemoQueryLLMPyTorch,"
@@ -126,7 +130,9 @@ def get_accuracy_with_lambada(model, nq, task_ids, lora_uids, test_data_path):
                     model_output = model_output["sentences"][0][len(prompt) :].strip().lower()
                 elif in_framework_supported and isinstance(model, MegatronLLMDeployableNemo2):
                     # There is no a direct generate method as in the case of MegatronLLMDeployable class above
-                    raise RuntimeError("MegatronLLMDeployableNemo2 is not supported for Lambada in-framework accuracy test.")
+                    raise RuntimeError(
+                        "MegatronLLMDeployableNemo2 is not supported for Lambada in-framework accuracy test."
+                    )
                 else:
                     model_output = model.forward(
                         input_texts=[prompt],
